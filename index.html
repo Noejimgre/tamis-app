@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tamis — Tableau de bord</title>
+
+<!-- Parsing de fichiers : PDF (pdf.js), Word (mammoth), OCR de secours (tesseract) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>if (window.pdfjsLib) { pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; }</script>
+<script src="https://cdn.jsdelivr.net/npm/mammoth/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  html{scroll-behavior:smooth}
+  body{background-color:#f7f8fb;background-image:radial-gradient(circle at 1px 1px,rgba(15,27,53,.045) 1px,transparent 0);background-size:22px 22px}
+  [x-cloak]{display:none!important}
+  .glass{backdrop-filter:saturate(180%) blur(10px)}
+  .chip{display:inline-flex;align-items:center;gap:.35rem;padding:.28rem .6rem;border-radius:9999px;font-size:.8rem;font-weight:600}
+  .score-ring{background:conic-gradient(var(--c) calc(var(--p)*1%),#eef0f5 0)}
+  @keyframes spin{to{transform:rotate(360deg)}} .spin{animation:spin .8s linear infinite}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}} .rise{animation:rise .5s cubic-bezier(.16,.84,.44,1) both}
+</style>
+<style>
+*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:Hanken Grotesk,sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.fixed{position:fixed}.sticky{position:sticky}.inset-0{inset:0}.right-4{right:1rem}.top-0{top:0}.top-4{top:1rem}.z-40{z-index:40}.z-50{z-index:50}.z-\[70\]{z-index:70}.mx-auto{margin-left:auto;margin-right:auto}.-mt-0\.5{margin-top:-.125rem}.mb-1{margin-bottom:.25rem}.mb-1\.5{margin-bottom:.375rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.mb-6{margin-bottom:1.5rem}.ml-auto{margin-left:auto}.mt-0\.5{margin-top:.125rem}.mt-1{margin-top:.25rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}.mt-4{margin-top:1rem}.mt-5{margin-top:1.25rem}.mt-6{margin-top:1.5rem}.mt-8{margin-top:2rem}.block{display:block}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.h-12{height:3rem}.h-14{height:3.5rem}.h-16{height:4rem}.h-3{height:.75rem}.h-3\.5{height:.875rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-7{height:1.75rem}.h-8{height:2rem}.h-9{height:2.25rem}.max-h-\[85vh\]{max-height:85vh}.min-h-screen{min-height:100vh}.w-12{width:3rem}.w-14{width:3.5rem}.w-28{width:7rem}.w-3{width:.75rem}.w-3\.5{width:.875rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-7{width:1.75rem}.w-8{width:2rem}.w-9{width:2.25rem}.w-\[calc\(100\%-2rem\)\]{width:calc(100% - 2rem)}.w-full{width:100%}.min-w-0{min-width:0}.max-w-6xl{max-width:72rem}.max-w-lg{max-width:32rem}.max-w-md{max-width:28rem}.max-w-sm{max-width:24rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.cursor-pointer{cursor:pointer}.resize-none{resize:none}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.place-items-center{place-items:center}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:.25rem}.gap-1\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-2\.5{gap:.625rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.space-y-1\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.375rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.375rem*var(--tw-space-y-reverse))}.space-y-3>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.75rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.75rem*var(--tw-space-y-reverse))}.space-y-4>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem*var(--tw-space-y-reverse))}.self-start{align-self:flex-start}.overflow-y-auto{overflow-y:auto}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:.5rem}.rounded-xl{border-radius:.75rem}.border{border-width:1px}.border-2{border-width:2px}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.border-dashed{border-style:dashed}.border-bad\/40{border-color:rgba(220,38,38,.4)}.border-brand-500{--tw-border-opacity:1;border-color:rgb(43 80 224/var(--tw-border-opacity,1))}.border-good\/40{border-color:rgba(22,163,74,.4)}.border-line{--tw-border-opacity:1;border-color:rgb(230 232 239/var(--tw-border-opacity,1))}.border-warn\/40{border-color:rgba(217,119,6,.4)}.bg-bad-soft{--tw-bg-opacity:1;background-color:rgb(254 226 226/var(--tw-bg-opacity,1))}.bg-brand-50{--tw-bg-opacity:1;background-color:rgb(238 242 255/var(--tw-bg-opacity,1))}.bg-brand-500{--tw-bg-opacity:1;background-color:rgb(43 80 224/var(--tw-bg-opacity,1))}.bg-good-soft{--tw-bg-opacity:1;background-color:rgb(220 252 231/var(--tw-bg-opacity,1))}.bg-ink{--tw-bg-opacity:1;background-color:rgb(15 27 53/var(--tw-bg-opacity,1))}.bg-ink\/40{background-color:rgba(15,27,53,.4)}.bg-surface{--tw-bg-opacity:1;background-color:rgb(247 248 251/var(--tw-bg-opacity,1))}.bg-warn-soft{--tw-bg-opacity:1;background-color:rgb(254 243 199/var(--tw-bg-opacity,1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.bg-white\/80{background-color:hsla(0,0%,100%,.8)}.p-10{padding:2.5rem}.p-12{padding:3rem}.p-3\.5{padding:.875rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-7{padding:1.75rem}.p-8{padding:2rem}.px-2\.5{padding-left:.625rem;padding-right:.625rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-3\.5{padding-left:.875rem;padding-right:.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-1\.5{padding-top:.375rem;padding-bottom:.375rem}.py-16{padding-top:4rem;padding-bottom:4rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-2\.5{padding-top:.625rem;padding-bottom:.625rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-8{padding-top:2rem;padding-bottom:2rem}.pt-2{padding-top:.5rem}.pt-3{padding-top:.75rem}.text-center{text-align:center}.font-display{font-family:Bricolage Grotesque,sans-serif}.font-sans{font-family:Hanken Grotesk,sans-serif}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\[11px\]{font-size:11px}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:.75rem;line-height:1rem}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-normal{font-weight:400}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-tight{line-height:1.25}.tracking-tight{letter-spacing:-.025em}.tracking-wide{letter-spacing:.025em}.text-bad{--tw-text-opacity:1;color:rgb(220 38 38/var(--tw-text-opacity,1))}.text-brand-500{--tw-text-opacity:1;color:rgb(43 80 224/var(--tw-text-opacity,1))}.text-brand-600{--tw-text-opacity:1;color:rgb(31 63 196/var(--tw-text-opacity,1))}.text-brand-700{--tw-text-opacity:1;color:rgb(26 53 166/var(--tw-text-opacity,1))}.text-good{--tw-text-opacity:1;color:rgb(22 163 74/var(--tw-text-opacity,1))}.text-ink{--tw-text-opacity:1;color:rgb(15 27 53/var(--tw-text-opacity,1))}.text-muted{--tw-text-opacity:1;color:rgb(100 112 138/var(--tw-text-opacity,1))}.text-muted\/80{color:rgba(100,112,138,.8)}.text-warn{--tw-text-opacity:1;color:rgb(217 119 6/var(--tw-text-opacity,1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.shadow-card{--tw-shadow:0 1px 2px rgba(15,27,53,.04),0 8px 24px -12px rgba(15,27,53,.12);--tw-shadow-colored:0 1px 2px var(--tw-shadow-color),0 8px 24px -12px var(--tw-shadow-color)}.shadow-card,.shadow-float{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-float{--tw-shadow:0 24px 60px -20px rgba(15,27,53,.35);--tw-shadow-colored:0 24px 60px -20px var(--tw-shadow-color)}.outline-none{outline:2px solid transparent;outline-offset:2px}.blur{--tw-blur:blur(8px)}.blur,.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.hover\:border-bad:hover{--tw-border-opacity:1;border-color:rgb(220 38 38/var(--tw-border-opacity,1))}.hover\:border-brand-500:hover{--tw-border-opacity:1;border-color:rgb(43 80 224/var(--tw-border-opacity,1))}.hover\:bg-brand-100:hover{--tw-bg-opacity:1;background-color:rgb(224 231 255/var(--tw-bg-opacity,1))}.hover\:bg-brand-600:hover{--tw-bg-opacity:1;background-color:rgb(31 63 196/var(--tw-bg-opacity,1))}.hover\:bg-line:hover{--tw-bg-opacity:1;background-color:rgb(230 232 239/var(--tw-bg-opacity,1))}.hover\:text-bad:hover{--tw-text-opacity:1;color:rgb(220 38 38/var(--tw-text-opacity,1))}.hover\:text-brand-600:hover{--tw-text-opacity:1;color:rgb(31 63 196/var(--tw-text-opacity,1))}.hover\:text-ink:hover{--tw-text-opacity:1;color:rgb(15 27 53/var(--tw-text-opacity,1))}.focus\:border-brand-500:focus{--tw-border-opacity:1;border-color:rgb(43 80 224/var(--tw-border-opacity,1))}.focus\:bg-white:focus{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.focus\:ring-4:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(4px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.focus\:ring-brand-50:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(238 242 255/var(--tw-ring-opacity,1))}.disabled\:opacity-70:disabled{opacity:.7}.group:hover .group-hover\:text-brand-600{--tw-text-opacity:1;color:rgb(31 63 196/var(--tw-text-opacity,1))}@media (min-width:640px){.sm\:inline{display:inline}.sm\:inline-flex{display:inline-flex}.sm\:w-auto{width:auto}.sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-start{align-items:flex-start}.sm\:justify-between{justify-content:space-between}.sm\:p-5{padding:1.25rem}.sm\:px-6{padding-left:1.5rem;padding-right:1.5rem}.sm\:text-3xl{font-size:1.875rem;line-height:2.25rem}}@media (min-width:768px){.md\:block{display:block}}@media (min-width:1024px){.lg\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style>
+</head>
+
+<body class="font-sans text-ink antialiased min-h-screen flex flex-col" x-data="tamis()" x-init="boot()">
+
+<!-- ===== TOASTS ===== -->
+<div class="fixed top-4 right-4 z-[70] flex w-[calc(100%-2rem)] max-w-sm flex-col gap-2">
+  <template x-for="t in toasts" :key="t.id">
+    <div class="flex items-start gap-2.5 rounded-xl border bg-white px-4 py-3 shadow-float" :class="t.cls">
+      <i :data-lucide="t.icon" class="mt-0.5 h-5 w-5 shrink-0"></i>
+      <p class="text-sm font-medium text-ink" x-text="t.msg"></p>
+      <i data-lucide="x" class="ml-auto h-4 w-4 shrink-0 cursor-pointer text-muted hover:text-ink" @click="dismiss(t.id)"></i>
+    </div>
+  </template>
+</div>
+
+<!-- ============ ÉCRAN DE CONNEXION ============ -->
+<div x-show="!session" class="flex flex-1 items-center justify-center p-4" style="display:none">
+  <div class="w-full max-w-sm rounded-2xl border border-line bg-white p-7 shadow-card rise">
+    <div class="mb-6 flex items-center gap-2.5">
+      <span class="grid h-9 w-9 place-items-center rounded-xl bg-brand-500 text-white"><i data-lucide="filter" class="h-5 w-5"></i></span>
+      <div class="leading-tight"><span class="font-display text-lg font-bold">Tamis</span><span class="block text-[11px] font-medium text-muted -mt-0.5">Tri de candidatures · IA</span></div>
+    </div>
+    <template x-if="!magicSent">
+      <div>
+        <h1 class="font-display text-xl font-bold">Connexion</h1>
+        <p class="mt-1 text-sm text-muted">Recevez un lien de connexion par e-mail. Pas de mot de passe.</p>
+        <label class="mt-5 block text-sm font-semibold mb-1.5">Adresse e-mail</label>
+        <input type="email" x-model="email" @keydown.enter="sendLink()" placeholder="vous@cabinet.fr"
+          class="w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm outline-none focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-50 transition" />
+        <button @click="sendLink()" :disabled="authLoading"
+          class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-5 py-3 text-sm font-bold text-white shadow-card transition hover:bg-brand-600 disabled:opacity-70">
+          <i :data-lucide="authLoading ? 'loader-2' : 'mail'" :class="authLoading && 'spin'" class="h-4 w-4"></i>
+          <span x-text="authLoading ? 'Envoi…' : 'Recevoir mon lien'"></span>
+        </button>
+      </div>
+    </template>
+    <template x-if="magicSent">
+      <div class="text-center py-4">
+        <span class="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-good-soft text-good"><i data-lucide="mail-check" class="h-7 w-7"></i></span>
+        <h1 class="mt-4 font-display text-lg font-bold">Vérifiez votre boîte mail</h1>
+        <p class="mt-1 text-sm text-muted">Un lien de connexion a été envoyé à <span class="font-semibold text-ink" x-text="email"></span>.</p>
+        <button @click="magicSent=false" class="mt-4 text-sm font-semibold text-brand-600">← Changer d'e-mail</button>
+      </div>
+    </template>
+  </div>
+</div>
+
+<!-- ============ APPLICATION (connecté) ============ -->
+<template x-if="session">
+<div class="flex min-h-screen flex-col">
+
+  <!-- topbar -->
+  <header class="sticky top-0 z-40 border-b border-line bg-white/80 glass">
+    <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+      <button @click="view='jobs'" class="flex items-center gap-2.5">
+        <span class="grid h-9 w-9 place-items-center rounded-xl bg-brand-500 text-white"><i data-lucide="filter" class="h-5 w-5"></i></span>
+        <span class="font-display text-lg font-bold">Tamis</span>
+      </button>
+      <div class="flex items-center gap-3">
+        <!-- compteur de crédits -->
+        <span x-show="profile" class="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-1 text-xs font-semibold"
+          :class="creditsLeft() <= 0 ? 'text-bad' : 'text-muted'">
+          <i data-lucide="zap" class="h-3.5 w-3.5"></i>
+          <span x-text="(profile ? profile.credits_used : 0)+' / '+(profile ? profile.credits_limit : 0)+' analyses'"></span>
+        </span>
+        <button x-show="profile && creditsLeft() <= 0" @click="toast('warn','Branchez Stripe pour débloquer le plan Pro.')"
+          class="inline-flex items-center gap-1.5 rounded-xl bg-ink px-3 py-2 text-sm font-semibold text-white transition hover:bg-brand-600"><i data-lucide="zap" class="h-4 w-4"></i> Passer Pro</button>
+        <span class="hidden md:block text-sm text-muted" x-text="session.user.email"></span>
+        <button @click="logout()" class="inline-flex items-center gap-1.5 rounded-xl border border-line px-3 py-2 text-sm font-semibold transition hover:border-bad hover:text-bad"><i data-lucide="log-out" class="h-4 w-4"></i> <span class="hidden sm:inline">Déconnexion</span></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto w-full max-w-6xl flex-1 px-4 sm:px-6 py-8">
+
+    <!-- ====== VUE : LISTE DES POSTES ====== -->
+    <section x-show="view==='jobs'">
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight">Postes ouverts</h1>
+        <button @click="newJob.open=true" class="inline-flex items-center gap-1.5 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-bold text-white shadow-card transition hover:bg-brand-600"><i data-lucide="plus" class="h-4 w-4"></i> Nouveau poste</button>
+      </div>
+
+      <div x-show="loading" class="py-16 text-center text-muted"><i data-lucide="loader-2" class="mx-auto h-8 w-8 spin"></i></div>
+
+      <div x-show="!loading && !jobs.length" class="rounded-2xl border border-dashed border-line bg-white p-12 text-center">
+        <span class="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-surface text-muted"><i data-lucide="briefcase" class="h-7 w-7"></i></span>
+        <p class="mt-4 font-semibold">Aucun poste pour l'instant</p>
+        <p class="mt-1 text-sm text-muted">Créez votre premier poste pour commencer à trier des candidats.</p>
+      </div>
+
+      <div x-show="!loading && jobs.length" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <template x-for="j in jobs" :key="j.id">
+          <div class="group rounded-2xl border border-line bg-white p-5 shadow-card transition hover:border-brand-500 cursor-pointer" @click="openJob(j)">
+            <div class="flex items-start justify-between">
+              <span class="grid h-9 w-9 place-items-center rounded-lg bg-brand-50 text-brand-600"><i data-lucide="briefcase" class="h-4 w-4"></i></span>
+              <span class="chip" :class="j.status==='open' ? 'bg-good-soft text-good' : 'bg-surface text-muted'" x-text="j.status==='open' ? 'Ouvert' : 'Clos'"></span>
+            </div>
+            <h3 class="mt-3 font-display text-lg font-bold leading-tight" x-text="j.title"></h3>
+            <p class="mt-1 text-sm text-muted" x-text="(j.must||[]).slice(0,3).join(' · ') || 'Aucune compétence définie'"></p>
+            <div class="mt-4 flex items-center justify-between border-t border-line pt-3">
+              <span class="text-xs font-semibold text-muted" x-text="(j.years||0) + ' ans requis'"></span>
+              <i data-lucide="arrow-right" class="h-4 w-4 text-muted transition group-hover:text-brand-600"></i>
+            </div>
+          </div>
+        </template>
+      </div>
+    </section>
+
+    <!-- ====== VUE : DÉTAIL D'UN POSTE ====== -->
+    <section x-show="view==='job' && currentJob" x-cloak>
+      <button @click="view='jobs'; loadJobs()" class="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-ink"><i data-lucide="arrow-left" class="h-4 w-4"></i> Tous les postes</button>
+
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight" x-text="currentJob && currentJob.title"></h1>
+          <p class="mt-1 text-sm text-muted">
+            <span x-text="(currentJob && currentJob.years||0)+' ans'"></span> ·
+            <span x-text="(currentJob && (currentJob.must||[]).join(', ')) || 'aucune compétence'"></span>
+          </p>
+        </div>
+        <button @click="deleteJob(currentJob)" class="inline-flex items-center gap-1.5 self-start rounded-xl border border-line px-3 py-2 text-sm font-semibold text-muted transition hover:border-bad hover:text-bad"><i data-lucide="trash-2" class="h-4 w-4"></i> Supprimer</button>
+      </div>
+
+      <!-- ZONE DE DÉPÔT (drag & drop) + collage manuel -->
+      <div class="mt-6 rounded-2xl border border-line bg-white p-5 shadow-card">
+        <!-- dropzone -->
+        <div @drop.prevent="handleDrop($event)" @dragover.prevent @dragenter.prevent="dragging=true" @dragleave.prevent="dragging=false"
+             @click="$refs.fileInput.click()"
+             class="cursor-pointer rounded-2xl border-2 border-dashed p-8 text-center transition"
+             :class="dragging ? 'border-brand-500 bg-brand-50' : 'border-line hover:border-brand-500'">
+          <i data-lucide="upload-cloud" class="mx-auto h-9 w-9" :class="dragging ? 'text-brand-600' : 'text-muted'"></i>
+          <p class="mt-2 text-sm font-semibold" x-text="dragging ? 'Déposez vos fichiers' : 'Glissez vos CV ici, ou cliquez pour choisir'"></p>
+          <p class="mt-1 text-xs text-muted">PDF, Word (.docx) ou texte — plusieurs fichiers acceptés</p>
+          <input type="file" x-ref="fileInput" multiple accept=".pdf,.docx,.txt" class="hidden" @change="onPick($event)" />
+        </div>
+
+        <!-- collage manuel (replié) -->
+        <details class="mt-3">
+          <summary class="cursor-pointer text-sm font-semibold text-brand-600">…ou coller un CV en texte</summary>
+          <textarea rows="4" x-model="cvInput" placeholder="Collez le texte d'un CV…" class="mt-2 w-full resize-none rounded-xl border border-line bg-surface px-3.5 py-3 text-sm outline-none focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-50 transition"></textarea>
+          <button @click="addCandidate()" class="mt-2 inline-flex items-center gap-1.5 rounded-xl border border-line bg-white px-4 py-2 text-sm font-semibold transition hover:border-brand-500 hover:text-brand-600"><i data-lucide="plus" class="h-4 w-4"></i> Ajouter</button>
+        </details>
+
+        <button @click="analyzePending()" :disabled="analyzing"
+          class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-5 py-3 text-sm font-bold text-white shadow-card transition hover:bg-brand-600 disabled:opacity-70 sm:w-auto">
+          <i :data-lucide="analyzing ? 'loader-2' : 'scan-search'" :class="analyzing && 'spin'" class="h-4 w-4"></i>
+          <span x-text="analyzing ? 'Analyse en cours…' : 'Analyser les candidats prêts'"></span>
+        </button>
+      </div>
+
+      <!-- candidats classés -->
+      <h2 class="mt-8 mb-3 font-display text-lg font-bold">Candidats classés <span class="text-muted font-normal" x-text="'('+candidates.length+')'"></span></h2>
+      <div x-show="!candidates.length" class="rounded-2xl border border-dashed border-line bg-white p-10 text-center text-sm text-muted">Aucun candidat. Déposez des CV ci-dessus.</div>
+      <div class="space-y-3">
+        <template x-for="c in candidates" :key="c.id">
+          <div class="rounded-2xl border border-line bg-white p-4 sm:p-5 shadow-card">
+            <div class="flex items-start gap-4">
+              <span class="score-ring grid h-12 w-12 shrink-0 place-items-center rounded-full" :style="`--p:${c.score||0}; --c:${ringColor(c)}`">
+                <span class="grid h-9 w-9 place-items-center rounded-full bg-white text-xs font-bold" x-text="c.score!=null ? c.score : '—'"></span>
+              </span>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <p class="font-semibold" x-text="c.name || 'Candidat'"></p>
+                  <span x-show="c.status && c.state==='done'" class="chip" :class="badgeClass(c)"><span x-text="c.status"></span></span>
+                  <!-- badge d'état (pipeline) -->
+                  <span x-show="c.state && c.state!=='done'" class="chip" :class="stateClass(c)">
+                    <i x-show="c.state==='parsing' || c.state==='analyzing'" data-lucide="loader-2" class="h-3 w-3 spin"></i>
+                    <span x-text="stateLabel(c)"></span>
+                  </span>
+                </div>
+                <p x-show="c.summary && c.state==='done'" class="mt-1 text-sm text-muted" x-text="c.summary"></p>
+                <p x-show="c.source_filename" class="mt-1 text-xs text-muted/80 flex items-center gap-1"><i data-lucide="paperclip" class="h-3 w-3"></i> <span x-text="c.source_filename"></span></p>
+              </div>
+              <div class="flex shrink-0 gap-1.5">
+                <button x-show="c.score!=null" @click="openDetail(c)" class="rounded-lg bg-surface px-2.5 py-1.5 text-xs font-semibold text-ink transition hover:bg-line" title="Détails"><i data-lucide="eye" class="h-4 w-4"></i></button>
+                <button x-show="c.tier && c.tier!=='bad'" @click="openEmail(c)" class="rounded-lg bg-brand-50 px-2.5 py-1.5 text-xs font-semibold text-brand-700 transition hover:bg-brand-100" title="E-mail"><i data-lucide="mail" class="h-4 w-4"></i></button>
+                <button @click="deleteCandidate(c)" class="rounded-lg px-2.5 py-1.5 text-xs text-muted transition hover:text-bad" title="Supprimer"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </section>
+  </main>
+</div>
+</template>
+
+<!-- ===== MODALE : nouveau poste ===== -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4" x-show="newJob.open" x-transition.opacity style="display:none">
+  <div class="w-full max-w-md rounded-2xl bg-white shadow-float" @click.outside="newJob.open=false">
+    <div class="flex items-center justify-between border-b border-line p-5"><h3 class="font-display text-lg font-bold">Nouveau poste</h3><i data-lucide="x" class="h-5 w-5 cursor-pointer text-muted" @click="newJob.open=false"></i></div>
+    <div class="p-5 space-y-3">
+      <div><label class="block text-sm font-semibold mb-1">Intitulé</label><input type="text" x-model="newJob.title" placeholder="Ex. Développeur Full-Stack" class="w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm outline-none focus:border-brand-500 focus:bg-white"></div>
+      <div><label class="block text-sm font-semibold mb-1">Années d'expérience</label><input type="number" min="0" max="50" x-model.number="newJob.years" class="w-28 rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm outline-none focus:border-brand-500 focus:bg-white"></div>
+      <div><label class="block text-sm font-semibold mb-1">Compétences indispensables <span class="text-muted font-normal">(séparées par des virgules)</span></label><input type="text" x-model="newJob.mustRaw" placeholder="React, Node.js, PostgreSQL" class="w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm outline-none focus:border-brand-500 focus:bg-white"></div>
+      <div><label class="block text-sm font-semibold mb-1">Atouts appréciés</label><input type="text" x-model="newJob.niceRaw" placeholder="Docker, AWS" class="w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm outline-none focus:border-brand-500 focus:bg-white"></div>
+      <div class="flex justify-end gap-2 pt-2"><button @click="newJob.open=false" class="rounded-xl border border-line px-4 py-2 text-sm font-semibold">Annuler</button><button @click="createJob()" class="rounded-xl bg-brand-500 px-4 py-2 text-sm font-bold text-white">Créer</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODALE : détail candidat ===== -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4" x-show="detail.open" x-transition.opacity style="display:none">
+  <div class="w-full max-w-lg rounded-2xl bg-white shadow-float max-h-[85vh] overflow-y-auto" @click.outside="detail.open=false">
+    <div class="flex items-center justify-between border-b border-line p-5">
+      <div class="flex items-center gap-2"><span x-show="detail.c" class="chip" :class="detail.c && badgeClass(detail.c)"><span x-text="detail.c && detail.c.status"></span></span><h3 class="font-display text-lg font-bold" x-text="detail.c && detail.c.name"></h3></div>
+      <i data-lucide="x" class="h-5 w-5 cursor-pointer text-muted" @click="detail.open=false"></i>
+    </div>
+    <div class="p-5 space-y-4" x-show="detail.c">
+      <div><p class="text-xs font-semibold uppercase tracking-wide text-muted mb-1">Synthèse</p><p class="text-sm" x-text="detail.c && detail.c.summary"></p></div>
+      <div><p class="text-xs font-semibold uppercase tracking-wide text-good mb-1">Forces</p><p class="text-sm" x-text="detail.c && detail.c.strengths"></p></div>
+      <div><p class="text-xs font-semibold uppercase tracking-wide text-bad mb-1">Faiblesses</p><p class="text-sm" x-text="detail.c && detail.c.weaknesses"></p></div>
+      <div x-show="detail.c && detail.c.questions && detail.c.questions.length">
+        <p class="text-xs font-semibold uppercase tracking-wide text-brand-700 mb-1.5">Questions à poser en entretien</p>
+        <ul class="space-y-1.5">
+          <template x-for="(q,i) in (detail.c ? detail.c.questions : [])" :key="i">
+            <li class="flex gap-2 text-sm"><i data-lucide="message-circle-question" class="mt-0.5 h-4 w-4 shrink-0 text-brand-500"></i><span x-text="q"></span></li>
+          </template>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODALE : e-mail ===== -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4" x-show="email2.open" x-transition.opacity style="display:none">
+  <div class="w-full max-w-lg rounded-2xl bg-white shadow-float" @click.outside="email2.open=false">
+    <div class="flex items-center justify-between border-b border-line p-5"><h3 class="font-display text-lg font-bold flex items-center gap-2"><i data-lucide="mail" class="h-5 w-5 text-brand-600"></i> E-mail de convocation</h3><i data-lucide="x" class="h-5 w-5 cursor-pointer text-muted" @click="email2.open=false"></i></div>
+    <div class="p-5">
+      <input type="text" x-model="email2.subject" class="mb-3 w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm outline-none focus:border-brand-500 focus:bg-white">
+      <textarea rows="9" x-model="email2.body" class="w-full resize-none rounded-xl border border-line bg-surface p-3.5 text-sm outline-none focus:border-brand-500 focus:bg-white"></textarea>
+      <div class="mt-4 flex justify-end gap-2"><button @click="copyEmail()" class="rounded-xl border border-line px-4 py-2 text-sm font-semibold">Copier</button><button @click="sendMail()" class="rounded-xl bg-brand-500 px-4 py-2 text-sm font-semibold text-white">Ouvrir dans la messagerie</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   TAMIS SaaS — v3 (P0) : Auth + BDD + drag&drop + parsing + crédits
+   ⚠️ Renseigne tes 2 valeurs PUBLIQUES ci-dessous.
+   ============================================================ */
+const SUPABASE_URL = 'https://jceghdnuzrpksrboubht.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_oqQeJRaYxBObuNGzP3hG4A_-hQBeJjH';
+let sb; // client Supabase
+
+function tamis() {
+  return {
+    session:null, email:'', authLoading:false, magicSent:false,
+    profile:null,
+    view:'jobs', loading:false,
+    jobs:[], currentJob:null, candidates:[],
+    cvInput:'', analyzing:false, dragging:false,
+    newJob:{ open:false, title:'', years:3, mustRaw:'', niceRaw:'' },
+    detail:{ open:false, c:null },
+    email2:{ open:false, subject:'', body:'' },
+    toasts:[], _tid:0, _ico:null,
+
+    async boot(){
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const { data } = await sb.auth.getSession();
+      this.session = data.session;
+      sb.auth.onAuthStateChange((_e, s) => { this.session = s; if (s) { this.loadJobs(); this.loadProfile(); } });
+      if (this.session) { await this.loadJobs(); await this.loadProfile(); }
+      this.icons();
+    },
+
+    /* ---------- AUTH ---------- */
+    async sendLink(){
+      if (!this.email || !this.email.includes('@')) { this.toast('error','Entrez une adresse e-mail valide.'); return; }
+      this.authLoading = true;
+      const { error } = await sb.auth.signInWithOtp({ email:this.email, options:{ emailRedirectTo: window.location.href } });
+      this.authLoading = false;
+      if (error) this.toast('error', error.message);
+      else { this.magicSent = true; this.icons(); }
+    },
+    async logout(){ await sb.auth.signOut(); this.session=null; this.profile=null; this.jobs=[]; this.currentJob=null; this.candidates=[]; this.view='jobs'; this.icons(); },
+
+    /* ---------- PROFIL / CRÉDITS ---------- */
+    async loadProfile(){
+      const { data } = await sb.from('profiles').select('credits_used,credits_limit,plan').eq('id', this.session.user.id).single();
+      if (data) this.profile = data; this.icons();
+    },
+    creditsLeft(){ return this.profile ? (this.profile.credits_limit - this.profile.credits_used) : 0; },
+
+    /* ---------- POSTES ---------- */
+    async loadJobs(){
+      this.loading = true;
+      const { data, error } = await sb.from('jobs').select('*').order('created_at',{ ascending:false });
+      this.loading = false;
+      if (error) { this.toast('error','Chargement des postes impossible.'); return; }
+      this.jobs = data || []; this.icons();
+    },
+    async createJob(){
+      const title = this.newJob.title.trim();
+      if (!title) { this.toast('error','Donnez un intitulé au poste.'); return; }
+      const must = this.newJob.mustRaw.split(',').map(s=>s.trim()).filter(Boolean);
+      const nice = this.newJob.niceRaw.split(',').map(s=>s.trim()).filter(Boolean);
+      const { error } = await sb.from('jobs').insert({ user_id:this.session.user.id, title, years:Number(this.newJob.years)||0, must, nice });
+      if (error) { this.toast('error','Création impossible.'); return; }
+      this.newJob = { open:false, title:'', years:3, mustRaw:'', niceRaw:'' };
+      this.toast('success','Poste créé.'); await this.loadJobs();
+    },
+    async openJob(j){ this.currentJob = j; this.view = 'job'; await this.loadCandidates(); },
+    async deleteJob(j){
+      if (!confirm('Supprimer ce poste et tous ses candidats ?')) return;
+      const { error } = await sb.from('jobs').delete().eq('id', j.id);
+      if (error) { this.toast('error','Suppression impossible.'); return; }
+      this.view='jobs'; this.toast('success','Poste supprimé.'); await this.loadJobs();
+    },
+
+    /* ---------- CANDIDATS ---------- */
+    async loadCandidates(){
+      const { data, error } = await sb.from('candidates').select('*')
+        .eq('job_id', this.currentJob.id)
+        .order('score',{ ascending:false, nullsFirst:false })
+        .order('created_at',{ ascending:false });
+      if (error) { this.toast('error','Chargement des candidats impossible.'); return; }
+      this.candidates = data || []; this.icons();
+    },
+    guessName(text){
+      const lines = text.split(/\n/).map(l=>l.trim()).filter(Boolean);
+      for (const l of lines.slice(0,4)) if (l.length<=40 && /^[A-Za-zÀ-ÿ'’\- ]+$/.test(l) && l.split(/\s+/).length<=4) return l;
+      return lines[0] ? lines[0].slice(0,40) : 'Candidat sans nom';
+    },
+    // collage manuel
+    async addCandidate(){
+      const text = this.cvInput.trim();
+      if (!text) { this.toast('error',"Collez le texte d'un CV."); return; }
+      if (text.length < 20) { this.toast('warn','Ce CV semble trop court.'); return; }
+      const { error } = await sb.from('candidates').insert({ user_id:this.session.user.id, job_id:this.currentJob.id, name:this.guessName(text), cv_text:text, state:'queued' });
+      if (error) { this.toast('error','Ajout impossible.'); return; }
+      this.cvInput=''; this.toast('success','Candidat ajouté.'); await this.loadCandidates();
+    },
+    async deleteCandidate(c){ const { error } = await sb.from('candidates').delete().eq('id', c.id); if (!error) await this.loadCandidates(); },
+
+    /* ---------- DRAG & DROP + PARSING ---------- */
+    async handleDrop(e){ this.dragging=false; await this.ingestFiles(e.dataTransfer.files); },
+    async onPick(e){ await this.ingestFiles(e.target.files); e.target.value=''; },
+
+    async ingestFiles(fileList){
+      const files = Array.from(fileList || []);
+      if (!files.length) return;
+      for (const file of files) {
+        // 1) crée la ligne en base à l'état 'parsing' (affichée immédiatement)
+        const { data:row, error } = await sb.from('candidates').insert({
+          user_id:this.session.user.id, job_id:this.currentJob.id,
+          name:file.name.replace(/\.[^.]+$/,''), source_filename:file.name, cv_text:'', state:'parsing'
+        }).select().single();
+        if (error || !row) { this.toast('error','Ajout impossible : '+file.name); continue; }
+        this.candidates.unshift(row); this.icons();   // feedback live
+
+        // 2) extraction du texte
+        try {
+          const text = await this.extractText(file);
+          if (text.replace(/\s/g,'').length < 20) throw new Error('texte vide ou trop court');
+          const name = this.guessName(text) || row.name;
+          await sb.from('candidates').update({ cv_text:text, name, state:'queued' }).eq('id', row.id);
+          row.cv_text = text; row.name = name; row.state = 'queued';     // maj locale
+        } catch(err) {
+          await sb.from('candidates').update({ state:'error' }).eq('id', row.id);
+          row.state = 'error';
+          this.toast('error', file.name+' : '+(err.message||'extraction échouée'));
+        }
+        this.icons();
+      }
+      // lance l'analyse des candidats prêts
+      this.analyzePending();
+    },
+
+    // Extraction multi-format : PDF (pdf.js) → Word (mammoth) → texte. OCR de secours si PDF scanné.
+    async extractText(file){
+      const ext = (file.name.split('.').pop() || '').toLowerCase();
+      if (ext === 'pdf') {
+        const data = new Uint8Array(await file.arrayBuffer());
+        const pdf = await pdfjsLib.getDocument({ data }).promise;
+        let txt = '';
+        for (let i=1; i<=pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          txt += content.items.map(it => it.str).join(' ') + '\n';
+        }
+        if (txt.replace(/\s/g,'').length > 30) return txt.trim();   // PDF texte
+        return await this.ocrPdf(pdf);                              // PDF scanné → OCR
+      }
+      if (ext === 'docx') {
+        const { value } = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+        return (value || '').trim();
+      }
+      if (ext === 'doc') throw new Error("ancien format .doc non supporté (convertir en .docx ou PDF)");
+      return (await file.text()).trim();   // .txt et autres
+    },
+
+    // OCR de secours pour les PDF scannés (lent : on rend chaque page en image puis on lit)
+    async ocrPdf(pdf){
+      if (!window.Tesseract) throw new Error('OCR indisponible');
+      this.toast('warn','PDF scanné détecté : lecture OCR (peut prendre un moment).');
+      const worker = await Tesseract.createWorker('fra+eng');
+      let out = '';
+      try {
+        for (let i=1; i<=pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const viewport = page.getViewport({ scale: 2 });
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width; canvas.height = viewport.height;
+          await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+          const { data:{ text } } = await worker.recognize(canvas);
+          out += text + '\n';
+        }
+      } finally { await worker.terminate(); }
+      return out.trim();
+    },
+
+    /* ---------- ANALYSE (séquentielle, respecte le quota) ---------- */
+    async analyzePending(){
+      const pending = this.candidates.filter(c => c.state === 'queued');
+      if (!pending.length) { if (!this.analyzing) this.toast('warn','Aucun candidat prêt à analyser.'); return; }
+      this.analyzing = true;
+      const { data:{ session } } = await sb.auth.getSession();
+      let quotaHit = false;
+      for (const c of pending) {
+        c.state = 'analyzing'; this.icons();
+        try {
+          const r = await fetch('/api/analyze', {
+            method:'POST',
+            headers:{ 'content-type':'application/json', 'authorization':'Bearer '+session.access_token },
+            body: JSON.stringify({ job:this.currentJob, cv:c.cv_text }),
+          });
+          if (r.status === 402) { quotaHit = true; c.state = 'queued'; break; }   // quota atteint → on stoppe
+          if (!r.ok) throw new Error('api');
+          const d = await r.json();
+          await sb.from('candidates').update({
+            score:d.score, tier:d.tier, status:d.status, strengths:d.strengths,
+            weaknesses:d.weaknesses, questions:d.questions, summary:d.summary, state:'done'
+          }).eq('id', c.id);
+          Object.assign(c, d, { state:'done' });
+        } catch(e) {
+          c.state = 'error';
+          this.toast('error', (c.name||'Candidat')+' : analyse échouée.');
+        }
+        this.icons();
+      }
+      this.analyzing = false;
+      if (quotaHit) this.toast('error','Quota gratuit atteint. Passez Pro pour continuer.');
+      await this.loadProfile();
+      await this.loadCandidates();
+    },
+
+    /* ---------- AFFICHAGE ---------- */
+    ringColor(c){ return c.tier==='good' ? '#16a34a' : c.tier==='warn' ? '#d97706' : c.tier==='bad' ? '#dc2626' : '#cbd2e0'; },
+    badgeClass(c){ return c.tier==='good' ? 'bg-good-soft text-good' : c.tier==='warn' ? 'bg-warn-soft text-warn' : 'bg-bad-soft text-bad'; },
+    stateLabel(c){ return { pending:'En attente', parsing:'Lecture du fichier…', queued:'Prêt', analyzing:'Analyse…', error:'Erreur' }[c.state] || ''; },
+    stateClass(c){ return c.state==='error' ? 'bg-bad-soft text-bad' : (c.state==='parsing'||c.state==='analyzing') ? 'bg-brand-50 text-brand-700' : 'bg-surface text-muted'; },
+    openDetail(c){ this.detail = { open:true, c }; this.icons(); },
+
+    /* ---------- E-MAIL ---------- */
+    openEmail(c){
+      const first = (c.name||'').split(/\s+/)[0] || 'Madame, Monsieur';
+      const poste = this.currentJob.title || 'le poste';
+      this.email2.subject = `Invitation à un entretien — ${poste}`;
+      this.email2.body = `Bonjour ${first},\n\nNous avons étudié votre candidature pour le poste de ${poste} et votre profil a retenu toute notre attention.\n\nNous aimerions vous rencontrer lors d'un entretien afin d'échanger sur votre parcours et sur le poste.\n\nSeriez-vous disponible dans les prochains jours ? N'hésitez pas à nous proposer quelques créneaux.\n\nBien cordialement,\nL'équipe recrutement`;
+      this.email2.open = true; this.icons();
+    },
+    async copyEmail(){ try { await navigator.clipboard.writeText(`Objet : ${this.email2.subject}\n\n${this.email2.body}`); this.toast('success','Copié.'); } catch(e){ this.toast('error','Copie impossible.'); } },
+    sendMail(){ window.location.href = `mailto:?subject=${encodeURIComponent(this.email2.subject)}&body=${encodeURIComponent(this.email2.body)}`; },
+
+    /* ---------- TOASTS / ICÔNES ---------- */
+    toast(type,msg){ const m={error:{icon:'alert-triangle',cls:'border-bad/40'},warn:{icon:'alert-circle',cls:'border-warn/40'},success:{icon:'check-circle-2',cls:'border-good/40'}}[type]||{icon:'info',cls:''}; const id=++this._tid; this.toasts.push({id,msg,icon:m.icon,cls:m.cls}); this.icons(); setTimeout(()=>this.dismiss(id),4200); },
+    dismiss(id){ this.toasts=this.toasts.filter(t=>t.id!==id); },
+    icons(){ this.$nextTick(()=>{ clearTimeout(this._ico); this._ico=setTimeout(()=>window.lucide&&lucide.createIcons(),20); }); },
+  };
+}
+</script>
+</body>
+</html>
